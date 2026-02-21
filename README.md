@@ -2,17 +2,13 @@
 
 ##### Paula Andrea Viviescas Jaimes
 
-El presente proyecto tiene como objetivo aplicar el proceso de normalización de bases de datos hasta la **Cuarta Forma Normal (4FN)** tomando como base un archivo Excel suministrado por el docente, el cual contiene información correspondiente a una clínica universitaria. Como resultado final se debe obtener:
+El presente proyecto tiene como objetivo aplicar el proceso de normalización de bases de datos hasta la **Cuarta Forma Normal (4FN)** a partir de un conjunto de datos suministrado en un archivo Excel correspondiente a la gestión de una clínica universitaria. Durante el desarrollo se realizó el análisis de la información, la identificación de dependencias y la descomposición de las tablas con el fin de eliminar redundancias y garantizar la integridad de los datos.
 
-- Modelo de datos normalizado hasta 4FN.
-- Modelo físico de la base de datos con todas sus relaciones.
-- Definición de tipos de datos y restricciones de integridad.
-- Procedimientos almacenados para operaciones CRUD de cada entidad.
-- Funciones y procedimientos adicionales que permitan:
--  Obtener el número de doctores dada una especialidad.
--  Calcular el total de pacientes atendidos por un médico.
--  Obtener la cantidad de pacientes atendidos en una sede específica.
-- Manejo de errores mediante procedimientos o funciones que registren: Nombre de la tabla, Código de error, Mensaje descriptivo, Fecha y hora del evento
+Como resultado, se diseñó e implementó el modelo físico de la base de datos en MySQL, estableciendo las relaciones entre entidades, restricciones de integridad y tipos de datos adecuados. Además, se desarrollaron procedimientos almacenados para las operaciones CRUD de cada tabla y funciones adicionales orientadas a la consulta y análisis de información clínica.
+
+El sistema incorpora también un mecanismo de manejo de errores que permite registrar automáticamente las excepciones generadas durante la ejecución de procedimientos y funciones, almacenando información relevante para el control y seguimiento de fallos.
+
+Este proyecto integra conceptos de normalización avanzada, modelado relacional y programación en bases de datos, aplicando buenas prácticas en el diseño e implementación de sistemas de información.
 
 ### Parte 1: Normalización
 
@@ -243,3 +239,149 @@ La implementación de procedimientos almacenados junto con el manejo estructurad
 
 Todos los procedimientos fueron probados mediante ejecuciones controladas desde MySQL Workbench, verificando inserciones correctas, actualizaciones, eliminaciones y registro adecuado de errores en la tabla de auditoría.
 
+### **Parte 3: Funciones Implementadas**
+
+Como parte final del desarrollo del sistema de base de datos de la clínica universitaria, se implementaron **funciones almacenadas (Stored Functions)** en MySQL con el objetivo de obtener información estadística relevante a partir de los datos registrados. Estas funciones permiten realizar cálculos automáticos directamente desde la base de datos, evitando consultas complejas repetitivas y garantizando reutilización de la lógica.
+
+Cada función:
+
+- Recibe parámetros de entrada.
+- Realiza cálculos sobre las tablas normalizadas.
+- Retorna un valor numérico como resultado.
+- Implementa manejo de errores.
+- Registra fallos en la tabla log_errores.
+
+### **Manejo de Errores en Funciones**
+
+Todas las funciones incluyen un manejador de excepciones mediante:
+
+```
+DECLARE EXIT HANDLER FOR SQLEXCEPTION
+```
+
+Cuando ocurre un error:
+
+1. Se captura el código y mensaje del sistema.
+2. Se registra el evento en la tabla log_errores.
+3. La función retorna el valor **-1** indicando fallo controlado.
+
+Esto permite mantener trazabilidad y auditoría del sistema.
+
+### **Funciones Desarrolladas**
+
+#### **1️⃣ Número de doctores dada una especialidad**
+
+**Nombre:** fn_doctores_por_especialidad
+
+**Descripción:** Retorna la cantidad total de médicos asociados a una especialidad específica.
+
+**Tabla utilizada:** medicos
+
+**Parámetro de entrada:**
+
+| **Parámetro**  | **Tipo**   | **Descripción**                  |
+| -------------- | ---------- | -------------------------------- |
+| idespecialidad | VARCHAR(6) | Identificador de la especialidad |
+
+**Valor retornado:**
+
+- Número total de médicos pertenecientes a la especialidad.
+- Retorna **-1** en caso de error.
+
+**Lógica aplicada:**
+
+Se realiza un conteo (COUNT) de los médicos cuyo idespecialidad coincida con el parámetro recibido.
+
+**Ejemplo de uso:**
+
+```
+SELECT fn_doctores_por_especialidad('E01');
+```
+
+#### **2️⃣ Total de pacientes atendidos por un médico**
+
+**Nombre:** fn_pacientes_por_medico
+
+**Descripción:** Calcula la cantidad de pacientes únicos atendidos por un médico determinado.
+
+**Tabla utilizada:** citas
+
+**Parámetro de entrada:**
+
+| **Parámetro** | **Tipo**   | **Descripción**          |
+| ------------- | ---------- | ------------------------ |
+| idmedico      | VARCHAR(6) | Identificador del médico |
+
+**Valor retornado:**
+
+- Cantidad de pacientes distintos atendidos.
+- Retorna **-1** si ocurre un error.
+
+**Lógica aplicada:**
+
+Se utiliza:
+
+```
+COUNT(DISTINCT idpaciente)
+```
+
+para evitar contar varias veces al mismo paciente cuando posee múltiples citas.
+
+**Ejemplo de uso:**
+
+```
+SELECT fn_pacientes_por_medico('M-10');
+```
+
+#### **3️⃣ Cantidad de pacientes atendidos dada una sede**
+
+**Nombre:** fn_pacientes_por_sede
+
+**Descripción:** Retorna la cantidad de pacientes únicos atendidos en una sede hospitalaria específica.
+
+**Tabla utilizada:** citas
+
+**Parámetro de entrada:**
+
+| **Parámetro** | **Tipo**   | **Descripción**                   |
+| ------------- | ---------- | --------------------------------- |
+| idhospital    | VARCHAR(6) | Identificador del hospital o sede |
+
+**Valor retornado:**
+
+- Número de pacientes distintos atendidos en la sede.
+- Retorna **-1** en caso de error.
+
+**Lógica aplicada:**
+
+Se cuentan pacientes únicos asociados a citas realizadas en un hospital determinado mediante:
+
+```
+COUNT(DISTINCT idpaciente)
+```
+
+**Ejemplo de uso:**
+
+```
+SELECT fn_pacientes_por_sede('HS01');
+```
+
+### **Beneficios de las Funciones Implementadas**
+
+La implementación de funciones almacenadas permite:
+
+✅ Consultas estadísticas reutilizables
+
+✅ Reducción de complejidad en consultas externas
+
+✅ Encapsulamiento de lógica de negocio
+
+✅ Mejor rendimiento en consultas frecuentes
+
+✅ Control centralizado de errores
+
+✅ Auditoría mediante registro en log_errores
+
+### **Conclusión**
+
+Las funciones desarrolladas complementan el modelo normalizado y los procedimientos CRUD implementados, proporcionando herramientas de análisis directamente desde la base de datos. Esto permite obtener métricas relevantes sobre médicos, pacientes y sedes hospitalarias de forma eficiente y controlada, cumpliendo completamente con los requerimientos planteados en la actividad.
