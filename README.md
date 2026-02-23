@@ -385,3 +385,146 @@ La implementación de funciones almacenadas permite:
 ### **Conclusión**
 
 Las funciones desarrolladas complementan el modelo normalizado y los procedimientos CRUD implementados, proporcionando herramientas de análisis directamente desde la base de datos. Esto permite obtener métricas relevantes sobre médicos, pacientes y sedes hospitalarias de forma eficiente y controlada, cumpliendo completamente con los requerimientos planteados en la actividad.
+
+## 🔐 Gestión de Usuarios y Control de Acceso
+
+Con el fin de garantizar la seguridad y correcta administración de la información dentro del sistema de la clínica universitaria, se implementó un esquema de control de acceso basado en usuarios y privilegios propios de MySQL.
+
+Para ello se utilizaron las instrucciones:
+
+- `CREATE USER` → creación de usuarios del sistema.
+- `REVOKE` → eliminación de privilegios por defecto.
+- `GRANT` → asignación controlada de permisos específicos.
+
+El diseño de permisos se realizó aplicando el **principio de menor privilegio**, el cual establece que cada usuario debe poseer únicamente los permisos estrictamente necesarios para cumplir sus funciones dentro del sistema, reduciendo riesgos de modificación indebida, pérdida de información o accesos no autorizados.
+
+---
+
+### 🧠 Principios aplicados
+
+Durante la definición de permisos se tuvieron en cuenta los siguientes criterios:
+
+- **Separación de responsabilidades:** cada tipo de usuario representa un rol funcional dentro de la clínica.
+- **Integridad de datos:** evitar eliminaciones o modificaciones accidentales.
+- **Seguridad operativa:** restringir accesos directos innecesarios a tablas críticas.
+- **Escalabilidad:** permitir que el sistema pueda crecer manteniendo control de accesos claro.
+- **Auditoría:** garantizar acceso controlado a registros de errores.
+
+---
+
+## 👥 Usuarios del sistema y justificación de permisos
+
+---
+
+### 🧠 Administrador (`admin_clinica`)
+
+El usuario administrador posee control total sobre la base de datos, ya que es responsable del mantenimiento, configuración y gestión general del sistema.
+
+**Permisos otorgados:**
+- `ALL PRIVILEGES` sobre toda la base de datos.
+
+**Justificación:**
+Este usuario debe poder crear estructuras, modificar tablas, gestionar usuarios y solucionar incidencias técnicas del sistema.
+
+---
+
+### 🧾 Recepción (`recepcion`)
+
+Representa al personal encargado del registro y gestión administrativa de pacientes y citas médicas.
+
+**Permisos otorgados:**
+- `SELECT`, `INSERT`, `UPDATE` sobre `pacientes` y `citas`.
+- `SELECT` sobre `medicos` y `hospitales`.
+
+**Justificación:**
+El personal de recepción necesita registrar pacientes y programar citas, pero **no debe eliminar información**, ya que esto podría causar pérdida histórica de registros clínicos.
+
+---
+
+### 👨‍⚕️ Médico (`medico_user`)
+
+Corresponde a los profesionales de salud que atienden consultas médicas.
+
+**Permisos otorgados:**
+- `SELECT` sobre `pacientes`.
+- `SELECT`, `UPDATE` sobre `citas`.
+- `SELECT` sobre `medicamentos`.
+- `SELECT`, `INSERT` sobre `recetas`.
+
+**Justificación:**
+El médico debe consultar información del paciente y registrar diagnósticos o tratamientos, pero no modificar datos administrativos ni eliminar registros clínicos.
+
+---
+
+### 💊 Farmacia (`farmacia_user`)
+
+Usuario encargado de la gestión de medicamentos y verificación de recetas.
+
+**Permisos otorgados:**
+- `SELECT` sobre `recetas`.
+- `SELECT`, `INSERT`, `UPDATE` sobre `medicamentos`.
+
+**Justificación:**
+La farmacia requiere consultar las recetas emitidas y mantener actualizado el catálogo de medicamentos disponibles, sin acceso a información clínica completa.
+
+---
+
+### 📊 Dirección (`direccion_user`)
+
+Usuario destinado a análisis y toma de decisiones administrativas.
+
+**Permisos otorgados:**
+- `SELECT` sobre toda la base de datos.
+
+**Justificación:**
+La dirección únicamente necesita consultar información estadística y operativa, sin capacidad de modificar datos del sistema.
+
+---
+
+### 🔎 Auditor (`auditor_user`)
+
+Encargado del seguimiento de errores y control del sistema.
+
+**Permisos otorgados:**
+- `SELECT` sobre `log_errores`.
+
+**Justificación:**
+Permite revisar fallos registrados sin riesgo de alterar evidencia o modificar información del sistema.
+
+---
+
+### 🤖 Aplicación (`app_backend`)
+
+Usuario utilizado por la aplicación backend.
+
+**Permisos otorgados:**
+- `EXECUTE` sobre procedimientos y funciones almacenadas.
+
+**Justificación:**
+La aplicación interactúa únicamente mediante procedimientos almacenados, evitando acceso directo a las tablas y aumentando la seguridad del sistema.
+
+---
+
+## 📊 Tabla resumen de permisos
+
+| Usuario        | Pacientes              | Citas                  | Médicos | Hospitales | Medicamentos           | Recetas        | Logs   | Procedimientos |
+| -------------- | ---------------------- | ---------------------- | ------- | ---------- | ---------------------- | -------------- | ------ | -------------- |
+| admin_clinica  | ALL                    | ALL                    | ALL     | ALL        | ALL                    | ALL            | ALL    | ALL            |
+| recepcion      | SELECT, INSERT, UPDATE | SELECT, INSERT, UPDATE | SELECT  | SELECT     | ❌                      | ❌              | ❌      | ❌              |
+| medico_user    | SELECT                 | SELECT, UPDATE         | ❌       | ❌          | SELECT                 | SELECT, INSERT | ❌      | ❌              |
+| farmacia_user  | ❌                      | ❌                      | ❌       | ❌          | SELECT, INSERT, UPDATE | SELECT         | ❌      | ❌              |
+| direccion_user | SELECT                 | SELECT                 | SELECT  | SELECT     | SELECT                 | SELECT         | SELECT | ❌              |
+| auditor_user   | ❌                      | ❌                      | ❌       | ❌          | ❌                      | ❌              | SELECT | ❌              |
+| app_backend    | ❌                      | ❌                      | ❌       | ❌          | ❌                      | ❌              | ❌      | EXECUTE        |
+
+---
+
+## ✅ Resultado
+
+La implementación de usuarios y permisos permite:
+
+- Proteger la integridad de la información clínica.
+- Evitar modificaciones accidentales.
+- Controlar accesos según responsabilidades reales.
+- Mejorar la seguridad general del sistema.
+- Simular un entorno real de gestión hospitalaria.
