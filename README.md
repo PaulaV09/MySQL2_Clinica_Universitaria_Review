@@ -86,7 +86,7 @@ Sin embargo, se identificó que esta relación ya estaba representada naturalmen
 
 De esta manera se eliminaron redundancias y dependencias multivaluadas, alcanzando la **Cuarta Forma Normal (4FN)**.
 
-### Modelo Relacional y Físico
+#### Modelo Relacional y Físico
 
 <a href="https://ibb.co/1GH6wM50"><img src="https://i.ibb.co/YBvZqXMN/Modelo-relacional-final.png" alt="Modelo-relacional-final" border="0"></a>
 
@@ -124,7 +124,7 @@ El uso de procedimientos almacenados permite:
 
 Cada entidad del sistema cuenta con su propio conjunto de procedimientos CRUD.
 
-### **Estructura General de los Procedimientos**
+#### **Estructura General de los Procedimientos**
 
 Para mantener uniformidad en todo el sistema, todos los procedimientos siguen la misma estructura lógica:
 
@@ -134,7 +134,7 @@ Para mantener uniformidad en todo el sistema, todos los procedimientos siguen la
 4. **Ejecución de la operación SQL**
 5. **Mensaje de confirmación o error**
 
-### **Operaciones Implementadas**
+#### **Operaciones Implementadas**
 
 Para cada tabla se crearon cuatro procedimientos:
 
@@ -145,7 +145,7 @@ Para cada tabla se crearon cuatro procedimientos:
 | UPDATE        | sp_tabla_update   | Actualiza un registro existente |
 | DELETE        | sp_tabla_delete   | Elimina un registro             |
 
-### **Tablas con CRUD Implementado**
+#### **Tablas con CRUD Implementado**
 
 Se desarrollaron procedimientos almacenados para las siguientes entidades:
 
@@ -160,7 +160,7 @@ Se desarrollaron procedimientos almacenados para las siguientes entidades:
 
 Cada conjunto de procedimientos permite administrar completamente la información asociada a la clínica universitaria.
 
-### **Manejo de Errores**
+#### **Manejo de Errores**
 
 Siguiendo las indicaciones del proyecto, todos los procedimientos incluyen un sistema de captura de errores utilizando:
 
@@ -174,7 +174,7 @@ Cuando ocurre un error durante la ejecución:
 2. El error se registra automáticamente en la tabla log_errores.
 3. Se devuelve un mensaje controlado al usuario.
 
-### **Tabla de Registro de Errores**
+#### **Tabla de Registro de Errores**
 
 Los errores se almacenan con la siguiente información:
 
@@ -187,7 +187,7 @@ Los errores se almacenan con la siguiente información:
 
 Esto permite llevar trazabilidad y auditoría de fallos del sistema.
 
-### **Ejemplo de Flujo de Manejo de Error**
+#### **Ejemplo de Flujo de Manejo de Error**
 
 Si se intenta:
 
@@ -201,7 +201,7 @@ el sistema:
 2. Guarda el error en log_errores.
 3. Retorna un mensaje informativo sin detener la ejecución del servidor.
 
-### **Beneficios del Enfoque Implementado**
+#### **Beneficios del Enfoque Implementado**
 
 La implementación realizada aporta:
 
@@ -217,7 +217,7 @@ La implementación realizada aporta:
 
 ✅ Preparación para integración con aplicaciones externas
 
-### **Convención de Nombres**
+#### **Convención de Nombres**
 
 Se utilizó una nomenclatura estándar:
 
@@ -233,7 +233,7 @@ Ejemplos:
 
 Esto facilita mantenimiento y escalabilidad del sistema.
 
-### **Conclusión**
+#### **Conclusión**
 
 La implementación de procedimientos almacenados junto con el manejo estructurado de errores permite que el modelo físico desarrollado cumpla buenas prácticas de diseño de bases de datos, garantizando confiabilidad, control y organización en la gestión de la información de la clínica universitaria.
 
@@ -251,7 +251,7 @@ Cada función:
 - Implementa manejo de errores.
 - Registra fallos en la tabla log_errores.
 
-### **Manejo de Errores en Funciones**
+#### **Manejo de Errores en Funciones**
 
 Todas las funciones incluyen un manejador de excepciones mediante:
 
@@ -366,7 +366,7 @@ COUNT(DISTINCT idpaciente)
 SELECT fn_pacientes_por_sede('HS01');
 ```
 
-### **Beneficios de las Funciones Implementadas**
+#### **Beneficios de las Funciones Implementadas**
 
 La implementación de funciones almacenadas permite:
 
@@ -382,11 +382,11 @@ La implementación de funciones almacenadas permite:
 
 ✅ Auditoría mediante registro en log_errores
 
-### **Conclusión**
+#### **Conclusión**
 
 Las funciones desarrolladas complementan el modelo normalizado y los procedimientos CRUD implementados, proporcionando herramientas de análisis directamente desde la base de datos. Esto permite obtener métricas relevantes sobre médicos, pacientes y sedes hospitalarias de forma eficiente y controlada, cumpliendo completamente con los requerimientos planteados en la actividad.
 
-## 🔐 Gestión de Usuarios y Control de Acceso
+### 🔐 Gestión de Usuarios y Control de Acceso
 
 Con el fin de garantizar la seguridad y correcta administración de la información dentro del sistema de la clínica universitaria, se implementó un esquema de control de acceso basado en usuarios y privilegios propios de MySQL.
 
@@ -400,7 +400,7 @@ El diseño de permisos se realizó aplicando el **principio de menor privilegio*
 
 ---
 
-### 🧠 Principios aplicados
+#### 🧠 Principios aplicados
 
 Durante la definición de permisos se tuvieron en cuenta los siguientes criterios:
 
@@ -416,7 +416,7 @@ Durante la definición de permisos se tuvieron en cuenta los siguientes criterio
 
 ---
 
-### 🧠 Administrador (`admin_clinica`)
+#### 🧠 Administrador (`admin_clinica`)
 
 El usuario administrador posee control total sobre la base de datos, ya que es responsable del mantenimiento, configuración y gestión general del sistema.
 
@@ -428,7 +428,7 @@ Este usuario debe poder crear estructuras, modificar tablas, gestionar usuarios 
 
 ---
 
-### 🧾 Recepción (`recepcion`)
+#### 🧾 Recepción (`recepcion`)
 
 Representa al personal encargado del registro y gestión administrativa de pacientes y citas médicas.
 
@@ -441,7 +441,7 @@ El personal de recepción necesita registrar pacientes y programar citas, pero *
 
 ---
 
-### 👨‍⚕️ Médico (`medico_user`)
+#### 👨‍⚕️ Médico (`medico_user`)
 
 Corresponde a los profesionales de salud que atienden consultas médicas.
 
@@ -456,7 +456,7 @@ El médico debe consultar información del paciente y registrar diagnósticos o 
 
 ---
 
-### 💊 Farmacia (`farmacia_user`)
+#### 💊 Farmacia (`farmacia_user`)
 
 Usuario encargado de la gestión de medicamentos y verificación de recetas.
 
@@ -469,7 +469,7 @@ La farmacia requiere consultar las recetas emitidas y mantener actualizado el ca
 
 ---
 
-### 📊 Dirección (`direccion_user`)
+#### 📊 Dirección (`direccion_user`)
 
 Usuario destinado a análisis y toma de decisiones administrativas.
 
@@ -481,7 +481,7 @@ La dirección únicamente necesita consultar información estadística y operati
 
 ---
 
-### 🔎 Auditor (`auditor_user`)
+#### 🔎 Auditor (`auditor_user`)
 
 Encargado del seguimiento de errores y control del sistema.
 
@@ -493,7 +493,7 @@ Permite revisar fallos registrados sin riesgo de alterar evidencia o modificar i
 
 ---
 
-### 🤖 Aplicación (`app_backend`)
+#### 🤖 Aplicación (`app_backend`)
 
 Usuario utilizado por la aplicación backend.
 
@@ -505,7 +505,7 @@ La aplicación interactúa únicamente mediante procedimientos almacenados, evit
 
 ---
 
-## 📊 Tabla resumen de permisos
+### 📊 Tabla resumen de permisos
 
 | Usuario        | Pacientes              | Citas                  | Médicos | Hospitales | Medicamentos           | Recetas        | Logs   | Procedimientos |
 | -------------- | ---------------------- | ---------------------- | ------- | ---------- | ---------------------- | -------------- | ------ | -------------- |
@@ -519,7 +519,7 @@ La aplicación interactúa únicamente mediante procedimientos almacenados, evit
 
 ---
 
-## ✅ Resultado
+#### ✅ Resultado
 
 La implementación de usuarios y permisos permite:
 
@@ -528,3 +528,83 @@ La implementación de usuarios y permisos permite:
 - Controlar accesos según responsabilidades reales.
 - Mejorar la seguridad general del sistema.
 - Simular un entorno real de gestión hospitalaria.
+
+Perfecto 👍 — ya revisé tu base de datos completa y te doy primero el **veredicto técnico** (esto es importante para tu README y para que el profe vea criterio profesional), y luego te entrego la **documentación en Markdown lista para pegar**.
+
+### 🔐 Protección contra Inyección SQL
+
+#### 📌 Objetivo
+
+Se implementaron mecanismos de protección contra ataques de **SQL Injection** mediante el uso de procedimientos almacenados y consultas parametrizadas, con el fin de garantizar la integridad y seguridad de la información del sistema clínico.
+
+La inyección SQL ocurre cuando datos ingresados por el usuario son interpretados como código SQL ejecutable. Para evitar esto, todas las operaciones críticas del sistema fueron encapsuladas dentro de *Stored Procedures*.
+
+---
+
+#### 🧠 Estrategia de Seguridad Implementada
+
+El sistema evita la ejecución directa de consultas SQL desde el cliente.  
+Todas las operaciones CRUD se realizan únicamente mediante procedimientos almacenados.
+
+Las principales medidas aplicadas fueron:
+
+- Uso de **Prepared Statements**.
+- Parámetros tipados dentro de procedimientos almacenados.
+- Eliminación de concatenación dinámica de strings SQL.
+- Validación de existencia de registros antes de operaciones UPDATE y DELETE.
+- Manejo centralizado de errores mediante `log_errores`.
+- Uso de transacciones (`START TRANSACTION`, `COMMIT`, `ROLLBACK`).
+
+---
+
+#### ⚙️ Uso de Prepared Statements
+
+En operaciones críticas se utilizaron consultas parametrizadas:
+
+```sql
+SET @sql = '
+    INSERT INTO citas
+    (idcita, fecha_cita, diagnostico, idmedico, idpaciente, idhospital)
+    VALUES (?, ?, ?, ?, ?, ?)
+';
+
+PREPARE stmt FROM @sql;
+EXECUTE stmt USING @id, @fecha, @diag, @idmed, @idpac, @idhos;
+DEALLOCATE PREPARE stmt;
+```
+
+Los símbolos ? actúan como placeholders, evitando que los valores ingresados sean interpretados como instrucciones SQL. Esto impide ataques como:
+
+```
+' OR '1'='1
+```
+
+ya que el motor de base de datos trata el contenido únicamente como un valor.
+
+#### **🗂️ Tablas consideradas críticas**
+
+Las medidas de protección se enfocaron principalmente en las tablas que contienen información sensible y relacional del sistema:
+
+| **Tabla**  | **Justificación**                                            |
+| ---------- | ------------------------------------------------------------ |
+| pacientes  | Contiene datos personales sensibles.                         |
+| medicos    | Representa actores principales del sistema clínico.          |
+| hospitales | Información institucional asociada a citas médicas.          |
+| citas      | Tabla central que relaciona pacientes, médicos y hospitales. |
+
+Estas tablas fueron priorizadas debido a que un ataque exitoso sobre ellas tendría mayor impacto operativo y de confidencialidad.
+
+#### **🧪 Prevención de ataques comunes**
+
+Los procedimientos almacenados previenen:
+
+- Bypass de autenticación (OR 1=1)
+- Extracción de datos mediante UNION SELECT
+- Ejecución de múltiples sentencias (; DELETE FROM)
+- Manipulación de condiciones WHERE
+
+Esto se logra gracias a la parametrización de consultas y al control interno de ejecución.
+
+#### **✅ Conclusión**
+
+La arquitectura basada en procedimientos almacenados y consultas parametrizadas elimina la posibilidad de inyección SQL al separar completamente los datos del código ejecutable, garantizando así un acceso seguro y controlado a la base de datos.
