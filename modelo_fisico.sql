@@ -93,3 +93,11 @@ CREATE TABLE IF NOT EXISTS log_errores (
     mensaje_error TEXT,
     fecha_hora TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE IF NOT EXISTS informe_diario (
+    id_informe INT AUTO_INCREMENT PRIMARY KEY,
+    fecha DATE,
+    hospital VARCHAR(45),
+    medico VARCHAR(45),
+    pacientes_atendidos INT
+);
