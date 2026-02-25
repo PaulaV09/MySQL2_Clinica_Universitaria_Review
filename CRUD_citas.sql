@@ -29,7 +29,22 @@ proc_create: BEGIN
 
     START TRANSACTION;
 
-    INSERT INTO citas VALUES (p_idcita,p_fecha_cita,p_diagnostico,p_idmedico,p_idpaciente,p_idhospital);
+    SET @sql = '
+        INSERT INTO citas
+        (idcita, fecha_cita, diagnostico, idmedico, idpaciente, idhospital)
+        VALUES (?, ?, ?, ?, ?, ?)
+    ';
+
+    SET @id = p_idcita;
+    SET @fecha = p_fecha_cita;
+    SET @diag = p_diagnostico;
+    SET @idmed = p_idmedico;
+    SET @idpac = p_idpaciente;
+    SET @idhos = p_idhospital;
+
+    PREPARE stmt FROM @sql;
+    EXECUTE stmt USING @id, @fecha, @diag, @idmed, @idpac, @idhos;
+    DEALLOCATE PREPARE stmt;
 
     COMMIT;
 
@@ -121,13 +136,26 @@ proc_update: BEGIN
         LEAVE proc_update;
     END IF;
 
-    UPDATE citas
-    SET fecha_cita = p_fecha_cita,
-        diagnostico = p_diagnostico,
-        idmedico = p_idmedico,
-        idpaciente = p_idpaciente,
-        idhospital = p_idhospital
-    WHERE idcita = p_idcita;
+    SET @sql = '
+        UPDATE citas
+        SET fecha_cita=?,
+            diagnostico=?,
+            idmedico=?,
+            idpaciente=?,
+            idhospital=?
+        WHERE idcita=?
+        ';
+
+    SET @id = p_idcita;
+    SET @fecha = p_fecha_cita;
+    SET @diag = p_diagnostico;
+    SET @idmed = p_idmedico;
+    SET @idpac = p_idpaciente;
+    SET @idhos = p_idhospital;
+
+    PREPARE stmt FROM @sql;
+    EXECUTE stmt USING @fecha, @diag, @idmed, @idpac, @idhos, @id;
+    DEALLOCATE PREPARE stmt;
 
     COMMIT;
 
@@ -177,7 +205,13 @@ proc_delete: BEGIN
         LEAVE proc_delete;
     END IF;
 
-    DELETE FROM citas WHERE idcita = p_idcita;
+    SET @sql = 'DELETE FROM citas WHERE idcita=?';
+
+    SET @id = p_idcita;
+
+    PREPARE stmt FROM @sql;
+    EXECUTE stmt USING @id;
+    DEALLOCATE PREPARE stmt;
 
     COMMIT;
 

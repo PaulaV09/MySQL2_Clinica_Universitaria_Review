@@ -29,7 +29,20 @@ proc_create: BEGIN
 
     START TRANSACTION;
 
-    INSERT INTO medicos VALUES (p_idmedico,p_nombre_medico,p_idfacultad,p_idespecialidad);
+    SET @sql = '
+        INSERT INTO medicos
+        (idmedico, nombre_medico, idfacultad, idespecialidad)
+        VALUES (?, ?, ?, ?)
+    ';
+
+    SET @id = p_idmedico;
+    SET @nom = p_nombre_medico;
+    SET @idfacu = p_idfacultad;
+    SET @idesp = p_idespecialidad;
+
+    PREPARE stmt FROM @sql;
+    EXECUTE stmt USING @id, @nom, @idfacu, @idesp;
+    DEALLOCATE PREPARE stmt;
 
     COMMIT;
 
@@ -121,11 +134,22 @@ proc_update: BEGIN
         LEAVE proc_update;
     END IF;
 
-    UPDATE medicos
-    SET nombre_medico = p_nombre_medico,
-        idfacultad = p_idfacultad,
-        idespecialidad = p_idespecialidad
-    WHERE idmedico = p_idmedico;
+     SET @sql = '
+        UPDATE medicos
+        SET nombre_medico=?,
+            idfacultad=?,
+            idespecialidad=?
+        WHERE idmedico=?
+        ';
+
+    SET @nom = p_nombre_medico;
+    SET @idfacu = p_idfacultad;
+    SET @idesp = p_idespecialidad;
+    SET @id  = p_idmedico;
+
+    PREPARE stmt FROM @sql;
+    EXECUTE stmt USING @nom,@idfacu,@idesp,@id;
+    DEALLOCATE PREPARE stmt;
 
     COMMIT;
 
@@ -175,7 +199,13 @@ proc_delete: BEGIN
         LEAVE proc_delete;
     END IF;
 
-    DELETE FROM medicos WHERE idmedico = p_idmedico;
+    SET @sql = 'DELETE FROM medicos WHERE idmedico=?';
+
+    SET @id = p_idmedico;
+
+    PREPARE stmt FROM @sql;
+    EXECUTE stmt USING @id;
+    DEALLOCATE PREPARE stmt;
 
     COMMIT;
 

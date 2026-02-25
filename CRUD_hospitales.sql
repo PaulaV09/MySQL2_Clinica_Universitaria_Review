@@ -29,7 +29,19 @@ proc_create: BEGIN
 
     START TRANSACTION;
 
-    INSERT INTO hospitales VALUES (p_idhospital,p_hospital,p_direccion);
+    SET @sql = '
+        INSERT INTO hospitales
+        (idhospital, hospital, direccion)
+        VALUES (?, ?, ?)
+    ';
+
+    SET @id = p_idhospital;
+    SET @hosp = p_hospital;
+    SET @dir = p_direccion;
+
+    PREPARE stmt FROM @sql;
+    EXECUTE stmt USING @id, @hosp, @dir;
+    DEALLOCATE PREPARE stmt;
 
     COMMIT;
 
@@ -121,10 +133,20 @@ proc_update: BEGIN
         LEAVE proc_update;
     END IF;
 
-    UPDATE hospitales
-    SET hospital = p_hospital,
-        direccion = p_direccion
-    WHERE idhospital = p_idhospital;
+    SET @sql = '
+        UPDATE hospitales
+        SET hospital=?,
+            direccion=?
+        WHERE idhospital=?
+        ';
+
+    SET @hosp = p_hospital;
+    SET @dir = p_direccion;
+    SET @id  = p_idhospital;
+
+    PREPARE stmt FROM @sql;
+    EXECUTE stmt USING @hosp,@dir,@id;
+    DEALLOCATE PREPARE stmt;
 
     COMMIT;
 
@@ -174,7 +196,13 @@ proc_delete: BEGIN
         LEAVE proc_delete;
     END IF;
 
-    DELETE FROM hospitales WHERE idhospital = p_idhospital;
+    SET @sql = 'DELETE FROM hospitales WHERE idhospital=?';
+
+    SET @id = p_idhospital;
+
+    PREPARE stmt FROM @sql;
+    EXECUTE stmt USING @id;
+    DEALLOCATE PREPARE stmt;
 
     COMMIT;
 
