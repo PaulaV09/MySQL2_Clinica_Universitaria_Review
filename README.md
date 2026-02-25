@@ -608,3 +608,92 @@ Esto se logra gracias a la parametrización de consultas y al control interno de
 #### **✅ Conclusión**
 
 La arquitectura basada en procedimientos almacenados y consultas parametrizadas elimina la posibilidad de inyección SQL al separar completamente los datos del código ejecutable, garantizando así un acceso seguro y controlado a la base de datos.
+
+### Triggers y Evento Automático Implementados
+
+Con el objetivo de fortalecer la integridad de los datos, automatizar procesos y simular comportamientos propios de un sistema clínico real, se implementaron triggers de validación y un evento programado dentro de la base de datos.
+
+Estas funcionalidades permiten trasladar parte de la lógica del negocio al motor de MySQL, evitando inconsistencias incluso cuando los datos se insertan desde diferentes aplicaciones o usuarios.
+
+---
+
+#### 1. Triggers de Validación en Pacientes
+
+Se crearon triggers `BEFORE INSERT` y `BEFORE UPDATE` sobre la tabla **pacientes** con el propósito de garantizar la calidad de la información almacenada.
+
+##### Validaciones realizadas
+- El nombre del paciente no puede ser nulo ni vacío.
+- El teléfono debe existir y ser un valor positivo válido.
+- En caso de error, se registra automáticamente el evento en la tabla `log_errores`.
+
+##### Justificación
+Estas validaciones se implementan a nivel de base de datos para asegurar que ningún usuario o sistema externo pueda almacenar registros inválidos, incluso si se omiten validaciones en la aplicación cliente.
+
+Esto permite:
+- Mantener consistencia de datos.
+- Evitar registros incompletos.
+- Centralizar reglas críticas del sistema.
+
+---
+
+#### 2. Trigger de Validación de Fecha en Citas
+
+Se implementaron triggers sobre la tabla **citas** para impedir el registro o modificación de citas con fechas futuras.
+
+##### Regla aplicada
+Una cita médica no puede tener una fecha mayor a la fecha actual del sistema (`CURDATE()`).
+
+##### Justificación
+El sistema modela citas ya realizadas o registradas administrativamente, por lo que permitir fechas futuras podría generar:
+
+- Informes incorrectos.
+- Estadísticas alteradas.
+- Inconsistencias en reportes clínicos.
+
+El trigger garantiza que la restricción se cumpla independientemente del origen de los datos.
+
+---
+
+#### 3. Evento Automático de Informe Diario
+
+Se creó un **EVENT de MySQL** encargado de generar automáticamente un informe diario de atención médica.
+
+##### Funcionamiento
+El evento se ejecuta cada día utilizando el `event_scheduler` del motor MySQL y realiza las siguientes acciones:
+
+1. Consulta las citas registradas el día anterior.
+2. Relaciona la información con:
+   - Hospital (sede)
+   - Médico responsable
+3. Calcula el número de pacientes atendidos.
+4. Inserta el resultado en la tabla `informe_diario`.
+
+##### Información almacenada
+- Fecha del informe
+- Hospital
+- Médico
+- Cantidad de pacientes atendidos
+
+##### Justificación
+Este enfoque permite:
+
+- Generar reportes históricos automáticamente.
+- Evitar cálculos pesados en tiempo real.
+- Simular procesos ETL básicos dentro de la base de datos.
+- Facilitar análisis estadísticos posteriores.
+
+Además, el almacenamiento diario crea un historial permanente que puede utilizarse para métricas de rendimiento médico o análisis institucional.
+
+---
+
+#### Beneficios Generales de la Implementación
+
+La combinación de triggers y eventos aporta características propias de sistemas empresariales:
+
+- ✔ Validación automática de datos.
+- ✔ Auditoría mediante registro de errores.
+- ✔ Automatización sin intervención humana.
+- ✔ Separación entre lógica de aplicación y lógica de datos.
+- ✔ Mayor confiabilidad del sistema.
+
+Estas prácticas reflejan un diseño orientado a la integridad, automatización y mantenimiento escalable de la información clínica.
