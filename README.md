@@ -2,13 +2,13 @@
 
 ##### Paula Andrea Viviescas Jaimes
 
-El presente proyecto tiene como objetivo aplicar el proceso de normalización de bases de datos hasta la **Cuarta Forma Normal (4FN)** a partir de un conjunto de datos suministrado en un archivo Excel correspondiente a la gestión de una clínica universitaria. Durante el desarrollo se realizó el análisis de la información, la identificación de dependencias y la descomposición de las tablas con el fin de eliminar redundancias y garantizar la integridad de los datos.
+Este repositorio contiene el diseño e implementación de la base de datos para un **sistema de gestión clínica**, desarrollado con el objetivo de simular un entorno real de administración hospitalaria mediante el uso de buenas prácticas de modelado, seguridad y optimización en MySQL.
 
-Como resultado, se diseñó e implementó el modelo físico de la base de datos en MySQL, estableciendo las relaciones entre entidades, restricciones de integridad y tipos de datos adecuados. Además, se desarrollaron procedimientos almacenados para las operaciones CRUD de cada tabla y funciones adicionales orientadas a la consulta y análisis de información clínica.
+El proyecto integra diferentes componentes propios de sistemas empresariales, incluyendo control de usuarios y permisos, procedimientos almacenados, mecanismos de protección contra inyección SQL, triggers de validación, automatización mediante eventos programados, vistas para análisis de información y estrategias de particionamiento orientadas al rendimiento y la escalabilidad.
 
-El sistema incorpora también un mecanismo de manejo de errores que permite registrar automáticamente las excepciones generadas durante la ejecución de procedimientos y funciones, almacenando información relevante para el control y seguimiento de fallos.
+La arquitectura fue diseñada considerando escenarios reales de una clínica, donde interactúan múltiples roles (administración, médicos, recepción, farmacia y dirección), garantizando la **integridad de los datos**, la **seguridad del acceso**, la **automatización de procesos** y la **eficiencia en consultas sobre grandes volúmenes de información**.
 
-Este proyecto integra conceptos de normalización avanzada, modelado relacional y programación en bases de datos, aplicando buenas prácticas en el diseño e implementación de sistemas de información.
+Este README documenta las decisiones técnicas adoptadas, las justificaciones de diseño y las soluciones implementadas para construir una base de datos robusta, segura y escalable, alineada con prácticas utilizadas en sistemas clínicos reales.
 
 ### Parte 1: Normalización
 
@@ -94,8 +94,6 @@ De esta manera se eliminaron redundancias y dependencias multivaluadas, alcanzan
 
 Para la representación gráfica del modelo relacional normalizado se utilizó la herramienta **MySQL Workbench**, la cual permitió diseñar visualmente las entidades, sus atributos y las relaciones definidas durante el proceso de normalización. Una vez validado el modelo relacional, se empleó la funcionalidad **Forward Engineering** de MySQL Workbench para generar automáticamente el **modelo físico** de la base de datos. Este proceso permitió:
 
-
-
 \- Crear las tablas correspondientes al modelo normalizado.
 
 \- Definir llaves primarias y llaves foráneas.
@@ -105,8 +103,6 @@ Para la representación gráfica del modelo relacional normalizado se utilizó l
 \- Asignar tipos de datos adecuados a cada atributo.
 
 \- Generar el script SQL completo de creación de la base de datos.
-
-
 
 Como resultado, se adjunta el archivo `.sql` que contiene el modelo físico generado, el cual permite recrear la estructura completa de la base de datos en cualquier instancia de MySQL compatible.
 
@@ -164,7 +160,7 @@ Cada conjunto de procedimientos permite administrar completamente la informació
 
 Siguiendo las indicaciones del proyecto, todos los procedimientos incluyen un sistema de captura de errores utilizando:
 
-```
+```sql
 DECLARE EXIT HANDLER FOR SQLEXCEPTION
 ```
 
@@ -221,7 +217,7 @@ La implementación realizada aporta:
 
 Se utilizó una nomenclatura estándar:
 
-```
+```sql
 sp_<tabla>_<operacion>
 ```
 
@@ -255,7 +251,7 @@ Cada función:
 
 Todas las funciones incluyen un manejador de excepciones mediante:
 
-```
+```sql
 DECLARE EXIT HANDLER FOR SQLEXCEPTION
 ```
 
@@ -294,7 +290,7 @@ Se realiza un conteo (COUNT) de los médicos cuyo idespecialidad coincida con el
 
 **Ejemplo de uso:**
 
-```
+```sql
 SELECT fn_doctores_por_especialidad('E01');
 ```
 
@@ -321,7 +317,7 @@ SELECT fn_doctores_por_especialidad('E01');
 
 Se utiliza:
 
-```
+```sql
 COUNT(DISTINCT idpaciente)
 ```
 
@@ -329,7 +325,7 @@ para evitar contar varias veces al mismo paciente cuando posee múltiples citas.
 
 **Ejemplo de uso:**
 
-```
+```sql
 SELECT fn_pacientes_por_medico('M-10');
 ```
 
@@ -356,13 +352,13 @@ SELECT fn_pacientes_por_medico('M-10');
 
 Se cuentan pacientes únicos asociados a citas realizadas en un hospital determinado mediante:
 
-```
+```sql
 COUNT(DISTINCT idpaciente)
 ```
 
 **Ejemplo de uso:**
 
-```
+```sql
 SELECT fn_pacientes_por_sede('HS01');
 ```
 
@@ -398,8 +394,6 @@ Para ello se utilizaron las instrucciones:
 
 El diseño de permisos se realizó aplicando el **principio de menor privilegio**, el cual establece que cada usuario debe poseer únicamente los permisos estrictamente necesarios para cumplir sus funciones dentro del sistema, reduciendo riesgos de modificación indebida, pérdida de información o accesos no autorizados.
 
----
-
 #### 🧠 Principios aplicados
 
 Durante la definición de permisos se tuvieron en cuenta los siguientes criterios:
@@ -410,11 +404,7 @@ Durante la definición de permisos se tuvieron en cuenta los siguientes criterio
 - **Escalabilidad:** permitir que el sistema pueda crecer manteniendo control de accesos claro.
 - **Auditoría:** garantizar acceso controlado a registros de errores.
 
----
-
 ## 👥 Usuarios del sistema y justificación de permisos
-
----
 
 #### 🧠 Administrador (`admin_clinica`)
 
@@ -426,8 +416,6 @@ El usuario administrador posee control total sobre la base de datos, ya que es r
 **Justificación:**
 Este usuario debe poder crear estructuras, modificar tablas, gestionar usuarios y solucionar incidencias técnicas del sistema.
 
----
-
 #### 🧾 Recepción (`recepcion`)
 
 Representa al personal encargado del registro y gestión administrativa de pacientes y citas médicas.
@@ -438,8 +426,6 @@ Representa al personal encargado del registro y gestión administrativa de pacie
 
 **Justificación:**
 El personal de recepción necesita registrar pacientes y programar citas, pero **no debe eliminar información**, ya que esto podría causar pérdida histórica de registros clínicos.
-
----
 
 #### 👨‍⚕️ Médico (`medico_user`)
 
@@ -454,8 +440,6 @@ Corresponde a los profesionales de salud que atienden consultas médicas.
 **Justificación:**
 El médico debe consultar información del paciente y registrar diagnósticos o tratamientos, pero no modificar datos administrativos ni eliminar registros clínicos.
 
----
-
 #### 💊 Farmacia (`farmacia_user`)
 
 Usuario encargado de la gestión de medicamentos y verificación de recetas.
@@ -467,8 +451,6 @@ Usuario encargado de la gestión de medicamentos y verificación de recetas.
 **Justificación:**
 La farmacia requiere consultar las recetas emitidas y mantener actualizado el catálogo de medicamentos disponibles, sin acceso a información clínica completa.
 
----
-
 #### 📊 Dirección (`direccion_user`)
 
 Usuario destinado a análisis y toma de decisiones administrativas.
@@ -478,8 +460,6 @@ Usuario destinado a análisis y toma de decisiones administrativas.
 
 **Justificación:**
 La dirección únicamente necesita consultar información estadística y operativa, sin capacidad de modificar datos del sistema.
-
----
 
 #### 🔎 Auditor (`auditor_user`)
 
@@ -491,8 +471,6 @@ Encargado del seguimiento de errores y control del sistema.
 **Justificación:**
 Permite revisar fallos registrados sin riesgo de alterar evidencia o modificar información del sistema.
 
----
-
 #### 🤖 Aplicación (`app_backend`)
 
 Usuario utilizado por la aplicación backend.
@@ -502,8 +480,6 @@ Usuario utilizado por la aplicación backend.
 
 **Justificación:**
 La aplicación interactúa únicamente mediante procedimientos almacenados, evitando acceso directo a las tablas y aumentando la seguridad del sistema.
-
----
 
 ### 📊 Tabla resumen de permisos
 
@@ -539,8 +515,6 @@ Se implementaron mecanismos de protección contra ataques de **SQL Injection** m
 
 La inyección SQL ocurre cuando datos ingresados por el usuario son interpretados como código SQL ejecutable. Para evitar esto, todas las operaciones críticas del sistema fueron encapsuladas dentro de *Stored Procedures*.
 
----
-
 #### 🧠 Estrategia de Seguridad Implementada
 
 El sistema evita la ejecución directa de consultas SQL desde el cliente.  
@@ -575,7 +549,7 @@ DEALLOCATE PREPARE stmt;
 
 Los símbolos ? actúan como placeholders, evitando que los valores ingresados sean interpretados como instrucciones SQL. Esto impide ataques como:
 
-```
+```sql
 ' OR '1'='1
 ```
 
@@ -615,8 +589,6 @@ Con el objetivo de fortalecer la integridad de los datos, automatizar procesos y
 
 Estas funcionalidades permiten trasladar parte de la lógica del negocio al motor de MySQL, evitando inconsistencias incluso cuando los datos se insertan desde diferentes aplicaciones o usuarios.
 
----
-
 #### 1. Triggers de Validación en Pacientes
 
 Se crearon triggers `BEFORE INSERT` y `BEFORE UPDATE` sobre la tabla **pacientes** con el propósito de garantizar la calidad de la información almacenada.
@@ -634,8 +606,6 @@ Esto permite:
 - Evitar registros incompletos.
 - Centralizar reglas críticas del sistema.
 
----
-
 #### 2. Trigger de Validación de Fecha en Citas
 
 Se implementaron triggers sobre la tabla **citas** para impedir el registro o modificación de citas con fechas futuras.
@@ -651,8 +621,6 @@ El sistema modela citas ya realizadas o registradas administrativamente, por lo 
 - Inconsistencias en reportes clínicos.
 
 El trigger garantiza que la restricción se cumpla independientemente del origen de los datos.
-
----
 
 #### 3. Evento Automático de Informe Diario
 
@@ -684,8 +652,6 @@ Este enfoque permite:
 
 Además, el almacenamiento diario crea un historial permanente que puede utilizarse para métricas de rendimiento médico o análisis institucional.
 
----
-
 #### Beneficios Generales de la Implementación
 
 La combinación de triggers y eventos aporta características propias de sistemas empresariales:
@@ -697,3 +663,301 @@ La combinación de triggers y eventos aporta características propias de sistema
 - ✔ Mayor confiabilidad del sistema.
 
 Estas prácticas reflejan un diseño orientado a la integridad, automatización y mantenimiento escalable de la información clínica.
+
+### Vistas (Views)
+
+Las vistas fueron implementadas con el objetivo de **simplificar consultas complejas**, mejorar la reutilización del código SQL y facilitar la generación de reportes administrativos y académicos dentro del sistema clínico.
+
+Una vista permite encapsular consultas frecuentes evitando la repetición constante de operaciones JOIN, reduciendo errores y mejorando la mantenibilidad del sistema.
+
+#### **🔹 Vista 1 — Información General de Médicos**
+
+##### **Nombre**
+
+```sql
+vw_medicos_info
+```
+
+##### Objetivo
+
+Centralizar en una sola consulta la información profesional y académica de los médicos, integrando datos provenientes de múltiples tablas relacionadas.
+
+Esta vista permite obtener fácilmente:
+
+- Identificación del médico
+- Nombre del médico
+- Facultad a la que pertenece
+- Decano de la facultad
+- Especialidad médica
+
+##### **Tablas involucradas**
+
+- medicos
+- facultades
+- especialidades
+
+##### **Implementación**
+
+```sql
+CREATE VIEW vw_medicos_info AS
+SELECT 
+    m.idmedico,
+    m.nombre_medico,
+    f.nombre_facultad,
+    f.decano_facultad,
+    e.especialidad
+FROM medicos m
+INNER JOIN facultades f 
+    ON m.idfacultad = f.idfacultad
+INNER JOIN especialidades e 
+    ON m.idespecialidad = e.idespecialidad;
+```
+
+##### **Justificación técnica**
+
+En una clínica universitaria es frecuente necesitar un **directorio médico completo**, ya sea para:
+
+- asignación de citas
+- consultas administrativas
+- reportes académicos
+- visualización institucional del personal médico
+
+Sin esta vista, cada consulta requeriría múltiples JOIN, aumentando la complejidad y duplicación de código.
+
+La vista encapsula esta lógica permitiendo consultas simples como:
+
+```sql
+SELECT * FROM vw_medicos_info;
+```
+
+##### **Beneficios**
+
+- Reduce complejidad de consultas
+- Evita repetición de JOIN
+- Mejora legibilidad del código
+- Facilita generación de reportes
+
+#### **🔹 Vista 2 — Pacientes Atendidos por Medicamento**
+
+##### **Nombre**
+
+```sql
+vw_pacientes_por_medicamento
+```
+
+##### **Objetivo**
+
+Permitir el análisis estadístico del uso de medicamentos dentro del sistema clínico, mostrando cuántos pacientes han recibido cada medicamento.
+
+##### **Relación de datos**
+
+Un medicamento no está directamente relacionado con pacientes, por lo que la consulta sigue la cadena relacional:
+
+```sql
+medicamentos → recetas → citas → pacientes
+```
+
+##### **Implementación**
+
+```sql
+CREATE VIEW vw_pacientes_por_medicamento AS
+SELECT 
+    m.idmedicamento,
+    m.medicamento,
+    COUNT(DISTINCT c.idpaciente) AS total_pacientes
+FROM medicamentos m
+INNER JOIN recetas r 
+    ON m.idmedicamento = r.idmedicamento
+INNER JOIN citas c 
+    ON r.idcita = c.idcita
+GROUP BY m.idmedicamento, m.medicamento;
+```
+
+##### **Decisión técnica importante**
+
+Se utilizó:
+
+```sql
+COUNT(DISTINCT c.idpaciente)
+```
+
+para evitar contar múltiples recetas del mismo paciente como registros independientes.
+
+Ejemplo:
+
+- Un paciente recibe el mismo medicamento en tres citas distintas.
+- El sistema lo contabiliza como **un solo paciente**, no tres.
+
+Esto permite obtener estadísticas reales de alcance del medicamento.
+
+##### **Casos de uso**
+
+- análisis farmacológico
+- control de consumo médico
+- apoyo a decisiones administrativas
+- estudios académicos
+
+##### **Beneficios**
+
+- Facilita análisis estadístico
+- Reduce consultas complejas
+- Mejora interpretación de datos clínicos
+
+### **Particionamiento de Tablas**
+
+#### **Concepto**
+
+El particionamiento divide físicamente una tabla en múltiples secciones llamadas **particiones**, permitiendo que el motor de base de datos consulte únicamente una parte del conjunto de datos en lugar de la tabla completa.
+
+#### Criterio Profesional Aplicado
+
+La decisión de particionar **no se basa únicamente en el tamaño de la tabla**, sino en:
+
+✅ crecimiento continuo de datos
+
+✅ patrones frecuentes de consulta
+
+✅ filtrado por rangos (especialmente fechas)
+
+✅ optimización de consultas históricas
+
+#### **Clasificación de Tablas del Sistema**
+
+| **Tipo**                   | **Tablas**                                                   |
+| -------------------------- | ------------------------------------------------------------ |
+| Tablas maestras (catálogo) | pacientes, medicos, facultades, especialidades, medicamentos |
+| Tablas transaccionales     | citas, recetas                                               |
+| Tablas de auditoría        | log_errores                                                  |
+
+#### **✅ Tablas Seleccionadas para Particionamiento**
+
+##### **🔹 Tabla** **citas**
+
+###### **Justificación**
+
+La tabla citas representa el núcleo transaccional del sistema:
+
+- crece diariamente
+- almacena histórico médico
+- consultas frecuentes por fecha
+- generación constante de reportes
+
+Ejemplos típicos:
+
+```sql
+WHERE fecha_cita BETWEEN '2025-01-01' AND '2025-12-31'
+```
+
+Este patrón hace ideal el particionamiento por rango temporal.
+
+###### **Implementación**
+
+```sql
+ALTER TABLE citas
+PARTITION BY RANGE (YEAR(fecha_cita)) (
+    PARTITION p2024 VALUES LESS THAN (2025),
+    PARTITION p2025 VALUES LESS THAN (2026),
+    PARTITION pFuture VALUES LESS THAN MAXVALUE
+);
+```
+
+###### **Beneficios**
+
+- Reduce escaneo completo de tabla
+- Mejora reportes históricos
+- Escalabilidad a largo plazo
+
+##### **🔹 Tabla** recetas
+
+###### **Justificación**
+
+La tabla recetas crece proporcionalmente al número de citas médicas. Cada nueva cita puede generar múltiples recetas, produciendo alto volumen de registros. Las consultas suelen realizarse mediante la relación con idcita.
+
+###### **Implementación**
+
+```sql
+ALTER TABLE recetas
+PARTITION BY HASH(idcita)
+PARTITIONS 4;
+```
+
+###### **Beneficios**
+
+- Distribución uniforme de datos
+- Mejora rendimiento en JOIN
+- Balance de carga en almacenamiento
+
+##### **🔹 Tabla** **log_errores**
+
+###### **Justificación**
+
+Es una tabla de auditoría que crece continuamente y se consulta principalmente por fecha.
+
+Permite:
+
+- análisis de fallos
+- monitoreo del sistema
+- mantenimiento histórico
+
+###### **Implementación**
+
+```sql
+ALTER TABLE log_errores
+PARTITION BY RANGE (YEAR(fecha_hora)) (
+    PARTITION p2024 VALUES LESS THAN (2025),
+    PARTITION p2025 VALUES LESS THAN (2026),
+    PARTITION pFuture VALUES LESS THAN MAXVALUE
+);
+```
+
+###### **Beneficios**
+
+- mantenimiento sencillo de logs
+- eliminación rápida de datos antiguos
+- consultas más eficientes
+
+#### **❌ Tablas NO Particionadas (Justificación)**
+
+##### **🔹 Tabla** **pacientes**
+
+Aunque puede crecer considerablemente, las consultas se realizan principalmente mediante:
+
+- clave primaria (idpaciente)
+- campos indexados únicos
+
+Las búsquedas por índice ya son altamente eficientes, por lo que la partición no aporta mejoras reales y aumentaría la complejidad administrativa.
+
+##### **🔹 Tabla** **medicamentos**
+
+Funciona como catálogo maestro:
+
+- crecimiento moderado
+- consultas por identificador
+- sin filtrado por rangos
+
+El acceso mediante índices hace innecesario el particionamiento.
+
+##### **🔹 Tabla** **medicos**
+
+El número de médicos es limitado en comparación con tablas transaccionales. Las consultas se realizan mediante claves indexadas y no existen consultas por rangos que justifiquen particiones.
+
+##### **🔹 Tablas** facultades **y** **especialidades**
+
+Son tablas estáticas de referencia con bajo volumen de registros y cambios poco frecuentes. El particionamiento no generaría beneficios de rendimiento.
+
+#### **3️⃣ Conclusión**
+
+El diseño de particionamiento se realizó siguiendo principios profesionales de optimización basados en **patrones de acceso a los datos y naturaleza transaccional**, en lugar de únicamente el tamaño potencial de las tablas.
+
+Se decidió:
+
+✅ particionar tablas transaccionales y de auditoría
+
+❌ evitar particionar tablas maestras o de catálogo
+
+Esto permite:
+
+- mejor rendimiento en consultas históricas
+- mayor escalabilidad del sistema
+- mantenimiento eficiente de datos
+- diseño alineado con prácticas reales de sistemas clínicos
